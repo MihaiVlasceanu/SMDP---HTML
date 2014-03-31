@@ -1,0 +1,22 @@
+<form method="POST" action="" id="form-survey-question_3" class="smdp last" autocomplete="off" role="form">
+    <div class="question_container">
+      <h3 class="smdp_question">Are you a student?</h3>
+    </div>
+    <div class="options_container">
+      <div class="radio">
+        <label>
+          <input type="radio" name="student" id="student_yes" value="yes" onClick="return Survey.changeSubmitButtonStatus(this);" />
+          Yes
+        </label>
+      </div>
+
+      <div class="radio">
+        <label>
+          <input type="radio" name="student" id="student_no" value="no" onClick="return Survey.changeSubmitButtonStatus(this);" />
+          No
+        </label>
+      </div>
+
+      </div>
+      <button type="button" class="btn btn-primary btn-sm btn-block" disabled="disabled" name="submitQuestion" onclick="return Survey.saveAnswerData('#form-survey-question_3', false);">Next Question »</button>
+</form>

@@ -1,0 +1,41 @@
+<form method="POST" action="" id="form-survey-question_1" class="smdp" autocomplete="off" role="form">
+    <div class="question_container">
+      <h3 class="smdp_question">Which are your favourite colors?</h3>
+    </div>
+    <div class="options_container">
+      <div class="checkbox">
+        <label>
+          <input type="checkbox" name="color" id="option_red" value="red" onClick="return Survey.changeSubmitButtonStatus(this);" />
+          Red
+        </label>
+      </div>
+      <div class="checkbox">
+        <label>
+          <input type="checkbox" name="color" id="option_blue" value="blue" onClick="return Survey.changeSubmitButtonStatus(this);" />
+          Blue
+        </label>
+      </div>
+      <div class="checkbox">
+        <label>
+          <input type="checkbox" name="color" id="option_green" value="green" onClick="return Survey.changeSubmitButtonStatus(this);" />
+          Green
+        </label>
+      </div>
+      <div class="checkbox">
+        <label>
+          <input type="checkbox" name="color" id="option_fuxia" value="fuxia" onClick="return Survey.changeSubmitButtonStatus(this);" />
+          Fuxxia
+        </label>
+      </div>
+
+      <div class="checkbox">
+        <label class="other">
+          <input type="checkbox" name="color" id="option_other" value="other" onClick="return Survey.changeSubmitButtonStatus(this);" />
+          Other: 
+        </label>
+        <input type="text" class="form-control other" id="optionsRadios2" maxlength="30" />
+      </div>
+
+      </div>
+      <button type="button" class="btn btn-primary btn-sm btn-block" disabled="disabled" name="submitQuestion" onclick="return Survey.saveAnswerData('#form-survey-question_1', 'q2.html');">Next Question »</button>
+</form>

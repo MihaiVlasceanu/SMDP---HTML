@@ -1,0 +1,88 @@
+body {
+	background-color: #F5F5F5;
+	color: #262626;
+    font: 14px/1.4 Roboto,'Helvetica Neue',arial,sans-serif;
+}
+
+.gc {
+	-moz-box-sizing: border-box;
+    display: inline-block;
+    max-width: 600px;
+    padding: 0 10px;
+    vertical-align: top;
+    min-height: 70px;
+    min-width: 200px;
+    border-radius: 3px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+    -moz-box-sizing: border-box;
+    background-color: #FFFFFF;
+    
+}
+
+.pg {
+    text-align: center;
+}
+
+
+.lg:after {
+    content: "";
+    display: block;
+    height: 30px;
+}
+.Gb {
+    display: inline-block;
+    margin: 10px 0;
+    min-height: 150px;
+    padding: 20px;
+    width: 100%;
+}
+.qd {
+    text-align: left;
+    padding: 20px;
+}
+.lg {
+    position: relative;
+}
+
+h3.smdp_question {
+	font-size: 14px;
+    font-weight: 300;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.form-group {
+	height: 35px;
+	margin: 10px 0;
+}
+
+div.options_container div.form-group div.col-sm-10 input.rating {
+	width: 50px;
+	float: right;
+}
+
+label.label-total {
+	float: right;
+}
+
+label.other {
+	display: inline;
+}
+
+input.other {
+	display: inline;
+    height: 23px;
+    width: 127px;
+}
+
+html body div.pg div.gc div.qd span.glyphicon.smdp {
+	color: green;
+	transform:scale(4.0,4.0);
+    -ms-transform:scale(4.0,4.0); /* IE 9 */
+    -moz-transform:scale(4.0,4.0); /* Firefox */
+    -webkit-transform:scale(4.0,4.0); /* Safari and Chrome */
+    -o-transform:scale(4.0,4.0); /* Opera */
+    width: 100%;
+    text-align: center;
+    margin: 30px 0;
+}
