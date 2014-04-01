@@ -254,6 +254,21 @@ Survey = (function() {
 			// Load the file
 			Survey.loadFile(fileToLoad);
 		},
+		// Validate textarea inputs
+		validateTextarea: function(area)
+		{
+			if(typeof area == 'undefined' || area == false)
+				return false;
+			// Convert to jQUery
+			var area = jQuery(area);
+			// Get the value
+			var value = area.val().trim();
+			// If the text size is bigger than 3, enable the next button
+			if(value.length > 3)
+				Survey.enableButton();
+			else
+				Survey.disableButton();
+		},
 		// Open the e-mail client and send the results
 		sendEmail: function()
 		{

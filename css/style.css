@@ -56,6 +56,10 @@ h3.smdp_question {
 	margin: 10px 0;
 }
 
+div.options_container {
+	margin-bottom: 20px;
+}
+
 div.options_container div.form-group div.col-sm-10 input.rating {
 	width: 50px;
 	float: right;
