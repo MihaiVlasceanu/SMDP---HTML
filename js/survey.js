@@ -251,7 +251,6 @@ Survey = (function() {
 				}
 			}*/
 			
-
 			// Load the file
 			Survey.loadFile(fileToLoad);
 		},
@@ -261,7 +260,10 @@ Survey = (function() {
 			var Subject = Survey.DEFAULT_MAIL_SBJ;
 			var Body    = Survey.getCookie();
 			var To    	= Survey.DEFAULT_MAIL_TO;
-			window.open('mailto:' + To + '?subject=' + Subject + '&body=' + Survey.format());
+			// Open Email client
+			var mail 	= window.open('mailto:' + To + '?subject=' + Subject + '&body=' + Survey.format());
+			// Close the new browser tab
+			mail.close();
 		},
 
 		questionIsAnswered: function(id)
