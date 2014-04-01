@@ -16,6 +16,8 @@ Survey = (function() {
 			var element = jQuery(e);
 			// Get parent form
 			var parentForm = element.closest('form');
+			// update chb
+			Survey.emptyOther(element, parentForm);
 			// If there are checked elements in the entire form
 			if(Survey.hasCheckedCheckboxes(parentForm) || Survey.hasCheckedRadios(parentForm))
 			{
@@ -311,7 +313,7 @@ Survey = (function() {
 			else
 				return qid;
 		},
-
+		// Formats the e0mail body
 		format: function()
 		{
 			var body = "";
@@ -327,9 +329,31 @@ Survey = (function() {
 			}
 			return body;
 		},
+		// Checkes the rative checbox for the other field
+		updateOther: function(input)
+		{
+			// Get the input
+			var txt = jQuery(input);
+			// Get the related checbox/radio
+			if(txt.attr('data-for'))
+			{
+				var dataFor = txt.attr('data-for');
+				// Convert it ti jQuery
+				var box 	= jQuery(dataFor);
+				// If it is not already checked
+				if(!box.is(':checked'))
+				{
+					// trigger a click on it
+					box.trigger('click');
+				}
+			}
+		},
+		// Resets the survey
 		reset: function()
 		{
+			// Reset cookies
 			Survey.initJsonCookie();
+			// Load the 1st question file
 			Survey.loadFile(Survey.DEFAULT_Q1);
 		},
 		// Checks if the cookie is empty
@@ -342,6 +366,16 @@ Survey = (function() {
 		     break; // exiting since we found that the object is not empty
 		  }
 		  return isEmpty;
+		},
+		emptyOther: function(element, form)
+		{
+			// Get form children
+			var txt = jQuery(form.children().find('input:text.other')[0]);
+			// element
+			if(!element.is(':checked'))
+			{
+				txt.val('');
+			}
 		},
 		// A getter for the cookie
 		getCookie: function()

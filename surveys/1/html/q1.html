@@ -33,7 +33,7 @@
           <input type="checkbox" name="color" id="option_other" value="other" onClick="return Survey.changeSubmitButtonStatus(this);" />
           Other: 
         </label>
-        <input type="text" class="form-control other" id="optionsRadios2" maxlength="30" />
+        <input type="text" class="form-control other" id="optionsRadios2" maxlength="30" data-for="#option_other" onClick="Survey.updateOther(this);" />
       </div>
 
       </div>
