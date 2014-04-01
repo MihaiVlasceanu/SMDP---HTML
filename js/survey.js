@@ -3,6 +3,11 @@ var Survey = Survey || {};
 
 Survey = (function() {	
 	return {
+		COOKIE_NAME		: 'Survey',
+		DEFAULT_Q1		: 'q1.html',
+		DEFAULT_ENDF	: 'end.html',
+		DEFAULT_MAIL_SBJ: 'Survey Answers',
+		DEFAULT_MAIL_TO : 'dimmestbub@mailinator.com',
 		// Changes the status of the submit button enabled/disabled
 		// for checkboxes and radios
 		changeSubmitButtonStatus: function(e)
@@ -77,12 +82,14 @@ Survey = (function() {
 			// Get input children
 			var inputChild = parentForm.children().find('input:text');
 			var total = 0;
-
+			var allRated = true;
 			inputChild.each(function()
 			{
 				if(jQuery(this).val())
 				{
 					total = parseInt(total) + parseInt(jQuery(this).val());
+				} else {
+					allRated = false;
 				}
 			});
 
@@ -99,7 +106,8 @@ Survey = (function() {
 
 				if(finalTotal == 0)
 				{
-					Survey.enableButton();
+					if(allRated)
+						Survey.enableButton();
 				}
 				else 
 				{
@@ -115,7 +123,7 @@ Survey = (function() {
 			var f = file;
 			if(Survey.isCompleted())
 			{
-				f = 'end.html';
+				f = Survey.DEFAULT_ENDF;
 			}
 
 			jQuery.ajax({
@@ -130,65 +138,206 @@ Survey = (function() {
 		// Checks is the survey was completed before
 		isCompleted: function()
 		{
-			if(typeof jQuery.cookie('Survey') == 'undefined')
+			if(typeof Survey.getCookie() == 'undefined')
 				return false;
-			cookie      = jQuery.cookie('Survey');
-			var obj 	= jQuery.parseJSON(cookie);
-			return (obj.completed == true);
+			return (Survey.getCookie().completed == true);
 		},
 		// Initialize a cookie to store the survey data
 		initJsonCookie: function(data)
-		{
-			if(Survey.isCompleted())
-			{
-				Survey.loadFile('end.html');
-			} else {
-				var contents = (typeof data == 'undefined' ? JSON.stringify(new Object()) : JSON.stringify(data));
-				jQuery.cookie("Survey", contents, {
-				   expires : 1,
-				   path    : '/',
-				   domain  : 'smdp.local.me',
-				   secure  : false
-				});
-			}
+		{	
+			// Cookie data
+			var contents = (typeof data == 'undefined' ? JSON.stringify(new Object()) : JSON.stringify(data));
+			// Create the cookie
+			jQuery.cookie(Survey.COOKIE_NAME, contents, {
+				// Expires after 1 day
+			   	expires : 1,
+			   	// path for the Cookie
+			   	path    : '/',
+			   	// Cookie domain (important)
+			   	domain  : window.location.host,
+			   	// true if using HTTPS
+			   	secure  : false
+			});
+
+			console.log(jQuery.cookie(Survey.COOKIE_NAME));
 		},
 		// Save the answer for each question to cookie
-		saveAnswerData: function(el, nextFile)
+		saveAnswerData: function(form, nextFile)
 		{
-			var cookies 	= jQuery.cookie("Survey");
-			var form        = jQuery(el);
-			var qid 		= form.attr('id').replace("#form-survey-question_", "");
-			var data 		= jQuery.parseJSON(cookies);
-			var str     	= "Q" + qid;
-			data[str] 		= jQuery(el).serialize();
-
-			if(form.hasClass('last'))
+			// Get curent cookies
+			var cookies 				= Survey.getCookie();
+			// Get form for which data is being saved
+			var formObject      		= jQuery(form);
+			// Get the ID of the question from the form's ID
+			var questionId 				= formObject.attr('id').replace("form-survey-question_", "");
+			// Check if there are no cookies
+			if(typeof cookies.questionNode == 'undefined')
 			{
-				data.completed = true;
+				// Init the new data object node
+				cookies.questionNode   		= [];
 			}
+				
+			// Question Object
+			var question 				= {};
+			// Set an id
+			question.id 				= questionId;
+			// Save the answers
+			question.answers			= formObject.serialize();
 
-			Survey.initJsonCookie(data);
-
-			if(nextFile !== false)
+			if(nextFile !== false && typeof nextFile !== 'undefined')
 			{
+				// Save the next file
+				question.nextFile 			= nextFile;
+				// Save next question id
+				question.nextId 			= parseInt(nextFile.replace('q', '').replace('.html', ''));
+			} 
+
+			// Set as answered question
+			question.answered  			= true;
+			// Add to cookie
+			cookies.questionNode.push(question);
+			// If this was the last question
+			if(formObject.hasClass('last'))
+			{
+				// Set the Survey as completed (cookie)
+				cookies.completed = true;
+			}
+			// Save the actual cookie
+			Survey.initJsonCookie(cookies);
+			// If the next file is set
+			if(!Survey.isCompleted())
+			{
+				// Load that file
 				Survey.loadFile(nextFile);
 			} else {
-				Survey.loadFile("end.html");
+				// Otherwise go to the finish
+				Survey.loadFile(Survey.DEFAULT_ENDF);
+				// And send e-mail
 				Survey.sendEmail();
 			}
-			
 			return false;
+		},
+		initSurvey: function()
+		{
+			// If the survey was already completed
+			if(Survey.isCompleted())
+			{
+				// Load the finish file
+				Survey.loadFile(Survey.DEFAULT_ENDF);
+				// and get out
+				return false;
+			}
+
+			// Default question file to load
+			var fileToLoad = Survey.DEFAULT_Q1;
+
+			// TO DO (Maybe?)
+			// Look for unanswered questions
+			/*if(!jQuery.isEmptyObject(Survey.getCookie()))
+			{
+				var size = Survey.getCookie().questionNode.length;
+				console.log(size);
+				for(var i in Survey.getCookie().questionNode)
+				{	
+					console.log(Survey.getCookie().questionNode[i]);
+					if(Survey.getCookie().questionNode[i].answered)
+					{
+						var next = Survey.getFirstUnAnswQueAfter(Survey.getCookie().questionNode[i].id);
+						if(next)
+						{
+							//fileToLoad = 'q' + ( + '.html';
+							console.log("Iem: " + Survey.getCookie().questionNode[i]);
+						}
+						
+					}
+				}
+			}*/
+			
+
+			// Load the file
+			Survey.loadFile(fileToLoad);
 		},
 		// Open the e-mail client and send the results
 		sendEmail: function()
 		{
-			var Subject = "Survey Results";
-			var Body    = jQuery.cookie("Survey");
-			var To    	= "dimmestbub@mailinator.com";
-			window.open('mailto:' + To + '?subject=' + Subject + '&body=' + escape(Body));
+			var Subject = Survey.DEFAULT_MAIL_SBJ;
+			var Body    = Survey.getCookie();
+			var To    	= Survey.DEFAULT_MAIL_TO;
+			window.open('mailto:' + To + '?subject=' + Subject + '&body=' + Survey.format());
+		},
+
+		questionIsAnswered: function(id)
+		{
+			if(typeof id == 'undefined' || id == false || !jQuery.isNumeric(id))
+				return false;
+
+			var answered = false;
+
+			for(var i in Survey.getCookie().questionNode)
+			{
+				if(Survey.getCookie().questionNode[i].id == id && Survey.getCookie().questionNode[i].answered)
+					answered = true;
+			}
+
+			return answered;
+		},
+
+		getFirstUnAnswQueAfter: function(id)
+		{
+			if(!jQuery.isNumeric(id))
+			{
+				return false;
+			}
+			else
+				var qid = id;
+
+			console.log(qid);
+			if(Survey.questionIsAnswered(qid))
+				return Survey.getFirstUnAnswQueAfter(qid);
+			else
+				return qid;
+		},
+
+		format: function()
+		{
+			var body = "";
+
+			if(!Survey.isEmpty())
+			{
+				for(var i in Survey.getCookie().questionNode)
+				{
+					var qs = Survey.getCookie().questionNode[i];
+					var newLine =  escape("\n\r");
+					body += "Q" + qs.id + ": " + escape(qs.answers) + newLine;
+				}
+			}
+			return body;
+		},
+		reset: function()
+		{
+			Survey.initJsonCookie();
+			Survey.loadFile(Survey.DEFAULT_Q1);
+		},
+		// Checks if the cookie is empty
+		isEmpty: function()
+		{
+		  var isEmpty = true;
+		  for(keys in Survey.getCookie())
+		  {
+		     isEmpty = false;
+		     break; // exiting since we found that the object is not empty
+		  }
+		  return isEmpty;
+		},
+		// A getter for the cookie
+		getCookie: function()
+		{
+			if(jQuery.cookie && jQuery.cookie(Survey.COOKIE_NAME))
+			{
+				return jQuery.parseJSON(jQuery.cookie(Survey.COOKIE_NAME));
+			} else {
+				Survey.initJsonCookie();
+			}
 		}
 	}
 })(jQuery);
-jQuery(document).ready(function() {
-	Survey.initJsonCookie();
-});
