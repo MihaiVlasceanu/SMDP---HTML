@@ -127,7 +127,7 @@ Survey = (function() {
 			}
 
 			jQuery.ajax({
-			  url: "/surveys/1/html/" + f,
+			  url: "surveys/1/html/" + f,
 			  cache: true
 			})
 			  .done(function( html ) {
