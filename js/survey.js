@@ -158,8 +158,6 @@ Survey = (function() {
 			   	// true if using HTTPS
 			   	secure  : false
 			});
-
-			console.log(jQuery.cookie(Survey.COOKIE_NAME));
 		},
 		// Save the answer for each question to cookie
 		saveAnswerData: function(form, nextFile)
@@ -291,7 +289,6 @@ Survey = (function() {
 			else
 				var qid = id;
 
-			console.log(qid);
 			if(Survey.questionIsAnswered(qid))
 				return Survey.getFirstUnAnswQueAfter(qid);
 			else
