@@ -5,7 +5,7 @@
     <div class="options_container">
       <div class="checkbox">
         <label>
-          <input type="checkbox" name="color" id="option_red" value="red" onClick="return Survey.changeSubmitButtonStatus(this);" />
+          <input type="checkbox" name="color" id="option_red" value="red" onClick="return Survey.changeSubmitButtonStatus(this);" data-next="5" />
           Red
         </label>
       </div>
@@ -37,5 +37,5 @@
       </div>
 
       </div>
-      <button type="button" class="btn btn-primary btn-sm btn-block" disabled="disabled" name="submitQuestion" onclick="return Survey.saveAnswerData('#form-survey-question_1', 'q2.html');">Next Question <span class="glyphicon glyphicon-chevron-right"></span></button>
+      <button type="button" class="btn btn-primary btn-sm btn-block" disabled="disabled" name="submitQuestion" onclick="return Survey.saveAnswerData('#form-survey-question_1', 2);">Next Question <span class="glyphicon glyphicon-chevron-right"></span></button>
 </form>

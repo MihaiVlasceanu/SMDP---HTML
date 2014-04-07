@@ -3,11 +3,16 @@ var Survey = Survey || {};
 
 Survey = (function() {	
 	return {
-		COOKIE_NAME		: 'Survey',
-		DEFAULT_Q1		: 'q1.html',
-		DEFAULT_ENDF	: 'end.html',
-		DEFAULT_MAIL_SBJ: 'Survey Answers',
-		DEFAULT_MAIL_TO : 'dimmestbub@mailinator.com',
+		COOKIE_NAME				: 'Survey',
+		DEFAULT_Q1				: 'q1.html',
+		DEFAULT_ENDF			: 'end.html',
+		DEFAULT_MAIL_SBJ		: 'Survey Answers',
+		DEFAULT_MAIL_TO 		: 'dimmestbub@mailinator.com',
+		DEFAULT_SPINNER 		: 'csspinner',
+		SURVEY_FORM_CONTAINER	: '.qd',
+		CONSTSUM_VAL_LBL_CLS    : '.label-total',
+		SURVEY_NXTQS_BTN_SEL    : 'button[name=submitQuestion]',
+		SURVEY_FORK_SEL 		: 'data-next',
 		// Changes the status of the submit button enabled/disabled
 		// for checkboxes and radios
 		changeSubmitButtonStatus: function(e)
@@ -19,26 +24,29 @@ Survey = (function() {
 			// update chb
 			Survey.emptyOther(element, parentForm);
 			// If there are checked elements in the entire form
-			if(Survey.hasCheckedCheckboxes(parentForm) || Survey.hasCheckedRadios(parentForm))
+			if(Survey.hasCheckedCheckboxes(parentForm) || Survey.hasCheckedRadios(parentForm) || !Survey.isRequired(parentForm))
 			{
 				// Enable the button
 				Survey.enableButton();
 			} else {
-				// Otherwise disabled it
-				Survey.disableButton();
+				if(Survey.isRequired)
+				{
+					// Otherwise disabled it
+					Survey.disableButton();
+				}
 			}
 		},
 		// Enables submit button
 		enableButton: function()
 		{
-			if(jQuery('button[name=submitQuestion]').attr('disabled'))
-				jQuery('button[name=submitQuestion]').removeAttr('disabled');
+			if(jQuery(Survey.SURVEY_NXTQS_BTN_SEL).attr('disabled'))
+				jQuery(Survey.SURVEY_NXTQS_BTN_SEL).removeAttr('disabled');
 		},
 		// Diable submit button
 		disableButton: function()
 		{
-			if(!jQuery('button[name=submitQuestion]').attr('disabled'))
-				jQuery('button[name=submitQuestion]').attr('disabled', 'disabled');
+			if(!jQuery(Survey.SURVEY_NXTQS_BTN_SEL).attr('disabled'))
+				jQuery(Survey.SURVEY_NXTQS_BTN_SEL).attr('disabled', 'disabled');
 		},
 		// Checks if the form has checked checboxes 
 		hasCheckedCheckboxes: function(form)
@@ -69,59 +77,116 @@ Survey = (function() {
 			return checked;
 		},
 		// Handles the user input in rating sum
-		ratingUpdate: function(input)
+		constantSumUpdate: function(input)
 		{
+			// Convert current input to Object
 			var input = jQuery(input);
+			// Get the value typed by the user
 			var val   = input.val();
-			// Get parent
+			// Get parent form
 			var parentForm = input.closest('form');
-			if(!jQuery.isNumeric(val) || val > 100)
+			// Get the maximum value of the sum
+			var ttlVal = (typeof jQuery(parentForm).attr('data-href') !== 'undefined' ? parseInt(jQuery(parentForm).attr('data-href'), 10) : 100);
+			// If the user eneters an invalid value to the field
+			if(!jQuery.isNumeric(val) || val > ttlVal)
 			{
-				var tempVal = val.substring(0, val.length - 1);
-				input.val(tempVal);
+				// Delete the last typed character
+				input.val(val.substring(0, val.length - 1));
 			}
-
-			// Get input children
+			// Find all the form inputs
 			var inputChild = parentForm.children().find('input:text');
+			// init a counter
 			var total = 0;
+			// All the fields have been filled (default)
 			var allRated = true;
+
 			inputChild.each(function()
 			{
+				// If the current input in the loop has a value set
 				if(jQuery(this).val())
 				{
+					// Increase the counter with its' value
 					total = parseInt(total) + parseInt(jQuery(this).val());
 				} else {
+					// Otherwise mark as not filled in
 					allRated = false;
 				}
 			});
-
-			var finalTotal = (100 - total);
-
-			if(finalTotal > 100 || finalTotal < 0)
+			// compare the overall target of the form with the counter
+			var finalTotal = (ttlVal - total);
+			// If they don't have the same value
+			if(finalTotal > ttlVal || finalTotal < 0 && Survey.isRequired(parentForm))
 			{
-				input.val('');
-				input.keyup();
+				// Keep the submit button disabled
 				Survey.disableButton();
 			} else {
-
-				jQuery('.label-total').html(finalTotal);
-
+				// Update the visible counter
+				jQuery(Survey.CONSTSUM_VAL_LBL_CLS).html(finalTotal);
+				// If the total of the values of all the fields matches
+				// the overall target
 				if(finalTotal == 0)
 				{
+					// If all the fields have been filled in
 					if(allRated)
+					{
+						// Enable the submit button
 						Survey.enableButton();
+					}
+				// Otherwise, disable the button
+				} else {
+					if(Survey.isRequired(parentForm))
+					{
+					 	Survey.disableButton();
+					}
 				}
-				else 
-				{
+			}
+		},
+		// Handle staple and ratings
+		ratingUpdate: function(input)
+		{
+			// Convert current input to Object
+			var input = jQuery(input);
+			// Get parent form
+			var parentForm = input.closest('form');
+			// Get the value of the radio checked by the user
+			var thisRatingValue = input.val();
+			// Check how many items to rate are present into the table
+			var itemsNo = jQuery('td.item').length;
+			// Init all checked to true by default
+			var allrated = true;
+			// selected
+			var seletedItemsNo = 0;
+			// Loop through each item to rate
+			jQuery('td.item').each(function() {
+				// Convert item to jQUery object
+				var td = jQuery(this);
+				// Get the parent row
+				var tr = td.parent();
+				// Search for a checked radio in this field
+				var checked = tr.children().find("input:radio").filter(':checked');
+				// If there is exactly one checked field, increase the counter
+				if(checked.length == 1)
+					seletedItemsNo++;
+			});
+
+			// Enable the submit button if all the items were rated
+			if(seletedItemsNo == itemsNo) {
+				Survey.enableButton();
+			} else {
+				if(Survey.isRequired(parentForm)) {
 					Survey.disableButton();
 				}
 			}
-
 		},
-
 		// Loads question html file
 		loadFile: function(file)
 		{
+			// Show a loader
+			if(!jQuery(Survey.SURVEY_FORM_CONTAINER).hasClass(Survey.DEFAULT_SPINNER))
+			{
+				jQuery(Survey.SURVEY_FORM_CONTAINER).addClass(Survey.DEFAULT_SPINNER);
+			}
+
 			var f = file;
 			if(Survey.isCompleted())
 			{
@@ -133,9 +198,14 @@ Survey = (function() {
 			  cache: true
 			})
 			  .done(function( html ) {
-			    jQuery( ".qd" ).html( html ).removeClass('csspinner');
+			    jQuery(Survey.SURVEY_FORM_CONTAINER).html( html ).removeClass('csspinner');
 			  });
 			  return false;
+		},
+		// Checks if a certain question is required
+		isRequired: function(form)
+		{
+			return form.hasClass('required');
 		},
 		// Checks is the survey was completed before
 		isCompleted: function()
@@ -162,14 +232,20 @@ Survey = (function() {
 			});
 		},
 		// Save the answer for each question to cookie
-		saveAnswerData: function(form, nextFile)
+		saveAnswerData: function(form, nextId)
 		{
+			// Try to parse the nextId to int if it is not false
+			if(!jQuery.isNumeric(nextId) && nextId !== false)
+				nextId = parseInt(nextId);
+
 			// Get curent cookies
 			var cookies 				= Survey.getCookie();
 			// Get form for which data is being saved
 			var formObject      		= jQuery(form);
 			// Get the ID of the question from the form's ID
 			var questionId 				= formObject.attr('id').replace("form-survey-question_", "");
+			// Init nextfile var
+			var nextFile;
 			// Check if there are no cookies
 			if(typeof cookies.questionNode == 'undefined')
 			{
@@ -183,15 +259,30 @@ Survey = (function() {
 			question.id 				= questionId;
 			// Save the answers
 			question.answers			= formObject.serialize();
+			// If there are forks
+			if(Survey.getFork(formObject) !== false)
+			{
+				// Get the appropriate fork file
+				nextFile = Survey.getQuestionFileName(Survey.getFork(formObject));
+				// And the ID
+				nextId   = Survey.getFork(formObject);
+			} else {
+				if(nextId !== false)
+				{
+					nextFile = Survey.getQuestionFileName(nextId);
+				} else {
+					nextFile = false;
+				}
+			}
 
 			if(nextFile !== false && typeof nextFile !== 'undefined')
 			{
 				// Save the next file
 				question.nextFile 			= nextFile;
 				// Save next question id
-				question.nextId 			= parseInt(nextFile.replace('q', '').replace('.html', ''));
+				question.nextId 			= nextId;
 			} 
-
+			
 			// Set as answered question
 			question.answered  			= true;
 			// Add to cookie
@@ -266,10 +357,13 @@ Survey = (function() {
 			// Get the value
 			var value = area.val().trim();
 			// If the text size is bigger than 3, enable the next button
-			if(value.length > 3)
+			if(value.length > 3) {
 				Survey.enableButton();
-			else
-				Survey.disableButton();
+			} else {
+				if(Survey.isRequired(jQuery(area.closest('form')))) {
+					Survey.disableButton();
+				}
+			}
 		},
 		// Open the e-mail client and send the results
 		sendEmail: function()
@@ -312,6 +406,39 @@ Survey = (function() {
 				return Survey.getFirstUnAnswQueAfter(qid);
 			else
 				return qid;
+		},
+		getFork: function(form)
+		{
+			var toReturn = false;
+			var search = ['input:text', 'input:radio', 'input:checkbox'];
+			for (var i = 0; i < search.length; i++) {
+				var currentType = search[i];
+				var elements 	= form.find(currentType);
+				elements.each(function()
+				{
+					if(jQuery(this).attr(Survey.SURVEY_FORK_SEL) !== 'undefined') {
+						
+						if(currentType == 'input:text')
+						{
+							if(jQuery(this).val().trim() !== '')
+								toReturn = jQuery(this).attr(Survey.SURVEY_FORK_SEL);
+						}
+
+						if(currentType == 'input:radio' || currentType == 'input:checkbox')
+						{
+							if(jQuery(this).is(':checked'))
+								toReturn = jQuery(this).attr(Survey.SURVEY_FORK_SEL);
+						}
+					}
+				});
+			}
+			if(typeof toReturn == 'undefined')
+				toReturn = false;
+			return toReturn;
+		},
+		getQuestionFileName: function(id)
+		{
+			return "q" + id + ".html";
 		},
 		// Formats the e0mail body
 		format: function()
