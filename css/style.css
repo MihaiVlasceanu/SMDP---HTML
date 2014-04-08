@@ -105,3 +105,7 @@ td.item {
 	text-align: left;
 	padding-right: 10px;
 }
+
+div.options_container div.form-group label.col-xs-8 {
+	line-height: 2em;
+}

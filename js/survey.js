@@ -320,30 +320,7 @@ Survey = (function() {
 			}
 
 			// Default question file to load
-			var fileToLoad = Survey.DEFAULT_Q1;
-
-			// TO DO (Maybe?)
-			// Look for unanswered questions
-			/*if(!jQuery.isEmptyObject(Survey.getCookie()))
-			{
-				var size = Survey.getCookie().questionNode.length;
-				console.log(size);
-				for(var i in Survey.getCookie().questionNode)
-				{	
-					console.log(Survey.getCookie().questionNode[i]);
-					if(Survey.getCookie().questionNode[i].answered)
-					{
-						var next = Survey.getFirstUnAnswQueAfter(Survey.getCookie().questionNode[i].id);
-						if(next)
-						{
-							//fileToLoad = 'q' + ( + '.html';
-							console.log("Iem: " + Survey.getCookie().questionNode[i]);
-						}
-						
-					}
-				}
-			}*/
-			
+			var fileToLoad = Survey.DEFAULT_Q1;			
 			// Load the file
 			Survey.loadFile(fileToLoad);
 		},
