@@ -94,7 +94,7 @@ Survey = (function() {
 				input.val(val.substring(0, val.length - 1));
 			}
 			// Find all the form inputs
-			var inputChild = parentForm.children().find('input:number');
+			var inputChild = parentForm.children().find('input[type=number]');
 			// init a counter
 			var total = 0;
 			// All the fields have been filled (default)
@@ -387,7 +387,7 @@ Survey = (function() {
 		getFork: function(form)
 		{
 			var toReturn = false;
-			var search = ['input:text', 'input:radio', 'input:checkbox', 'input:number'];
+			var search = ['input:text', 'input:radio', 'input:checkbox', 'input[type=number]'];
 			for (var i = 0; i < search.length; i++) {
 				var currentType = search[i];
 				var elements 	= form.find(currentType);
@@ -395,7 +395,7 @@ Survey = (function() {
 				{
 					if(jQuery(this).attr(Survey.SURVEY_FORK_SEL) !== 'undefined') {
 						
-						if(currentType == 'input:text' || currentType == 'input:number')
+						if(currentType == 'input:text' || currentType == 'input[type=number]')
 						{
 							if(jQuery(this).val().trim() !== '')
 								toReturn = jQuery(this).attr(Survey.SURVEY_FORK_SEL);
