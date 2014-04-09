@@ -246,26 +246,20 @@ Survey = (function() {
 			var questionId 				= formObject.attr('id').replace("form-survey-question_", "");
 			// Init nextfile var
 			var nextFile;
-			// Check if there are no cookies
-			if(typeof cookies.questionNode == 'undefined')
-			{
-				// Init the new data object node
-				cookies.questionNode   		= [];
-			}
-				
-			// Question Object
-			var question 				= {};
-			// Set an id
-			question.id 				= questionId;
-			// Save the answers
-			question.answers			= formObject.serialize();
+
 			// If there are forks
 			if(Survey.getFork(formObject) !== false)
 			{
 				// Get the appropriate fork file
-				nextFile = Survey.getQuestionFileName(Survey.getFork(formObject));
+				nextFile 	= Survey.getQuestionFileName(Survey.getFork(formObject));
 				// And the ID
-				nextId   = Survey.getFork(formObject);
+				nextId   	= Survey.getFork(formObject);
+				// Reload the cookies
+				cookies 	= Survey.getCookie();
+				// Remove the first fork
+				if(typeof cookies.forks !== 'undesfined' && cookies.forks !== 0) {
+					cookies.forks.splice(0, 1);
+				}
 			} else {
 				if(nextId !== false)
 				{
@@ -275,6 +269,26 @@ Survey = (function() {
 				}
 			}
 
+			// Check if there are no cookies
+			if(typeof cookies.questionNode == 'undefined')
+			{
+				// Init the new data object node
+				cookies.questionNode   		= [];
+			}
+
+			if(typeof cookies.forks == 'undefined')
+			{
+				// Init the new data object node
+				cookies.forks   		= [];
+			}
+				
+			// Question Object
+			var question 				= {};
+			// Set an id
+			question.id 				= questionId;
+			// Save the answers
+			question.answers			= formObject.serialize();
+
 			if(nextFile !== false && typeof nextFile !== 'undefined')
 			{
 				// Save the next file
@@ -282,7 +296,7 @@ Survey = (function() {
 				// Save next question id
 				question.nextId 			= nextId;
 			} 
-			
+
 			// Set as answered question
 			question.answered  			= true;
 			// Add to cookie
@@ -293,6 +307,7 @@ Survey = (function() {
 				// Set the Survey as completed (cookie)
 				cookies.completed = true;
 			}
+
 			// Save the actual cookie
 			Survey.initJsonCookie(cookies);
 			// If the next file is set
@@ -386,31 +401,58 @@ Survey = (function() {
 		},
 		getFork: function(form)
 		{
+			// No fork, by default
 			var toReturn = false;
+			// Items to look for forks
 			var search = ['input:text', 'input:radio', 'input:checkbox', 'input[type=number]'];
-			for (var i = 0; i < search.length; i++) {
-				var currentType = search[i];
-				var elements 	= form.find(currentType);
-				elements.each(function()
-				{
-					if(jQuery(this).attr(Survey.SURVEY_FORK_SEL) !== 'undefined') {
-						
-						if(currentType == 'input:text' || currentType == 'input[type=number]')
-						{
-							if(jQuery(this).val().trim() !== '')
-								toReturn = jQuery(this).attr(Survey.SURVEY_FORK_SEL);
-						}
+			// Get cookies
+			var cookies = Survey.getCookie();
+			// If thre are forks
+			if(typeof cookies.forks !== 'undefined' && cookies.forks.length !== 0)
+			{
+				// get the head
+				toReturn = cookies.forks[0];
+			} else {
+				// Search for forks
+				for (var i = 0; i < search.length; i++) {
+					var currentType = search[i];
+					var elements 	= form.find(currentType);
+					elements.each(function()
+					{
+						if(jQuery(this).attr(Survey.SURVEY_FORK_SEL) !== 'undefined') {
+							var forkSequence = null;
+							if(currentType == 'input:text' || currentType == 'input[type=number]')
+							{
+								if(jQuery(this).val().trim() !== '') {
+									forkSequence = jQuery(this).attr(Survey.SURVEY_FORK_SEL);
+								}
+							}
 
-						if(currentType == 'input:radio' || currentType == 'input:checkbox')
-						{
-							if(jQuery(this).is(':checked'))
-								toReturn = jQuery(this).attr(Survey.SURVEY_FORK_SEL);
+							if(currentType == 'input:radio' || currentType == 'input:checkbox')
+							{
+								if(jQuery(this).is(':checked')) {
+									forkSequence = jQuery(this).attr(Survey.SURVEY_FORK_SEL);
+								}
+							}
+
+
+							if(typeof forkSequence !== 'undefined' && forkSequence !== null ) {
+								forkSequence = forkSequence.split(',');
+								cookies.forks = forkSequence;
+								// Save the actual cookie
+								Survey.initJsonCookie(cookies);
+								toReturn = cookies.forks[0];
+							}
+							
 						}
-					}
-				});
+					});
+				}
 			}
+			
+
 			if(typeof toReturn == 'undefined')
 				toReturn = false;
+
 			return toReturn;
 		},
 		getQuestionFileName: function(id)
