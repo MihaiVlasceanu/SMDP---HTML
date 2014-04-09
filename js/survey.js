@@ -535,3 +535,6 @@ Survey = (function() {
 		}
 	}
 })(jQuery);
+jQuery(document).ready(function(){
+	jQuery("button.start").attr("disabled", false).text("Start");
+});
