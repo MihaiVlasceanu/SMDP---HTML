@@ -243,7 +243,7 @@ Survey = (function() {
 			// Get form for which data is being saved
 			var formObject      		= jQuery(form);
 			// Get the ID of the question from the form's ID
-			var questionId 				= formObject.attr('id').replace("form-survey-question_", "");
+			var questionId 				= formObject.attr('id');
 			// Init nextfile var
 			var nextFile;
 
@@ -310,6 +310,7 @@ Survey = (function() {
 
 			// Save the actual cookie
 			Survey.initJsonCookie(cookies);
+
 			// If the next file is set
 			if(!Survey.isCompleted())
 			{
@@ -419,7 +420,7 @@ Survey = (function() {
 					var elements 	= form.find(currentType);
 					elements.each(function()
 					{
-						if(jQuery(this).attr(Survey.SURVEY_FORK_SEL) !== 'undefined') {
+						if(Survey.isDefined(jQuery(this).attr(Survey.SURVEY_FORK_SEL))) {
 							var forkSequence = null;
 							if(currentType == 'input:text' || currentType == 'input[type=number]')
 							{
@@ -466,11 +467,13 @@ Survey = (function() {
 
 			if(!Survey.isEmpty())
 			{
+				console.log(Survey.getCookie().questionNode);
 				for(var i in Survey.getCookie().questionNode)
 				{
+					console.log(i);
 					var qs = Survey.getCookie().questionNode[i];
 					var newLine =  escape("\n\r");
-					body += "Q" + qs.id + ": " + escape(qs.answers) + newLine;
+					body += qs.id + ": " + escape(qs.answers) + newLine;
 				}
 			}
 			return body;
@@ -532,6 +535,10 @@ Survey = (function() {
 			} else {
 				Survey.initJsonCookie();
 			}
+		},
+		isDefined: function(data)
+		{
+			return (typeof data !== 'undefined' && data !== null && data.trim().length > 0);
 		}
 	}
 })(jQuery);
