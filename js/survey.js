@@ -604,7 +604,29 @@ Survey = (function() {
 		isDefined: function(data)
 		{
 			return (typeof data !== 'undefined' && data !== null && data.trim().length > 0);
-		}
+		},
+		isBetween: function(what, n1, n2)
+		{
+			var num1 = parseInt(n1);
+			var num2 = parseInt(n2);
+			return (n1 < what && what < n2);
+		},
+		lt: function(what, n)
+		{
+			return (parseInt(what) < parseInt(n));
+		},
+		loet: function(what, m)
+		{
+			return (parseInt(what) <= parseInt(n));
+		},
+		gt: function(what, m)
+		{
+			return (parseInt(what) > parseInt(n));
+		},
+		goet: function(what, m)
+		{
+			return (parseInt(what) >= parseInt(n));
+		},
 	}
 })(jQuery);
 jQuery(document).ready(function(){

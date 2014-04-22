@@ -6,19 +6,19 @@
 <div class="form-group">
   <label for="ranking_A" class="col-xs-9 control-label">MDDP</label>
   <div class="col-xs-3">
-    <input type="number" class="form-control rating" id="ranking_A" maxlength="2" onkeyup="return Survey.rankingUpdate(this);" name="rating_A" data-next="" />
+    <input type="number" class="form-control rating" id="ranking_A" maxlength="2" onkeyup="return Fork.calculate(this);" name="rating_A" data-next="" />
   </div>
 </div>
 <div class="form-group">
   <label for="ranking_B" class="col-xs-9 control-label">Database Tuning</label>
   <div class="col-xs-3">
-    <input type="number" class="form-control rating" id="ranking_B" maxlength="2" onkeyup="return Survey.rankingUpdate(this);" name="rating_B" data-next="" />
+    <input type="number" class="form-control rating" id="ranking_B" maxlength="2" onkeyup="return Fork.calculate(this);" name="rating_B" data-next="" />
   </div>
 </div>
 <div class="form-group">
   <label for="ranking_C" class="col-xs-9 control-label">Discrete Mathematics</label>
   <div class="col-xs-3">
-    <input type="number" class="form-control rating" id="ranking_C" maxlength="2" onkeyup="return Survey.rankingUpdate(this);" name="rating_C" data-next="" />
+    <input type="number" class="form-control rating" id="ranking_C" maxlength="2" onkeyup="return Fork.calculate(this);" name="rating_C" data-next="" />
   </div>
 </div>
   </div>
@@ -26,3 +26,40 @@
     Next Question <span class="glyphicon glyphicon-chevron-right"></span>
   </button>
 </form>
+
+<script type="text/javascript">
+
+var Fork = Fork || {};
+
+Fork = (function(){
+  return {
+    calculate: function(input)
+    {
+      // Get the field object
+      var numberField = (typeof input !== 'undefined' ? jQuery(input) : false);
+
+      if(numberField !== false)
+      {
+        // Actul inout value
+        var value = numberField.val();
+
+        // If it is less than 2
+        if(Survey.lt(value, 2)) {
+          numberField.attr(Survey.SURVEY_FORK_SEL, 4);
+          // Is between
+        } else if (Survey.isBetween(value, 2, 4)) {
+          numberField.attr(Survey.SURVEY_FORK_SEL, 4);
+          // Greater or equal than
+        } else if(Survey.goet(value, 4)) {
+          numberField.attr(Survey.SURVEY_FORK_SEL, 5);
+        }
+
+        numberField.on('keyUp', function() {
+          return Survey.rankingUpdate(this);
+        });
+      }
+    }
+  }
+})(jQuery);
+
+</script>
