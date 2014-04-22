@@ -178,6 +178,73 @@ Survey = (function() {
 				}
 			}
 		},
+		rankingUpdate: function(input)
+		{
+			// Convert current input to Object
+			var input = jQuery(input);
+			// Get the value typed by the user
+			var val   = input.val();
+			// Get parent form
+			var parentForm = input.closest('form');
+			// Find all the form inputs
+			var inputChild = parentForm.children().find('input[type=number]');
+			// Get all input items
+			var inputs = parseInt(inputChild.length);
+			// Get the maximum value of the sum
+			var ttlVal = inputs * (1 + inputs) / 2;
+			// If the user eneters an invalid value to the field
+			if(!jQuery.isNumeric(val) || val > ttlVal)
+			{
+				// Delete the last typed character
+				input.val(val.substring(0, val.length - 1));
+			}
+			
+			// init a counter
+			var total = 0;
+			// All the fields have been filled (default)
+			var allRated = true;
+
+			inputChild.each(function()
+			{
+				// If the current input in the loop has a value set
+				if(jQuery(this).val())
+				{
+					// Increase the counter with its' value
+					total = parseInt(total) + parseInt(jQuery(this).val());
+				} else {
+					// Otherwise mark as not filled in
+					allRated = false;
+				}
+			});
+			// compare the overall target of the form with the counter
+			var finalTotal = (ttlVal - total);
+			// If they don't have the same value
+			if(finalTotal > ttlVal || finalTotal < 0 && Survey.isRequired(parentForm))
+			{
+				// Keep the submit button disabled
+				Survey.disableButton();
+			} else {
+				// Update the visible counter
+				jQuery(Survey.CONSTSUM_VAL_LBL_CLS).html(finalTotal);
+				// If the total of the values of all the fields matches
+				// the overall target
+				if(finalTotal == 0)
+				{
+					// If all the fields have been filled in
+					if(allRated)
+					{
+						// Enable the submit button
+						Survey.enableButton();
+					}
+				// Otherwise, disable the button
+				} else {
+					if(Survey.isRequired(parentForm))
+					{
+					 	Survey.disableButton();
+					}
+				}
+			}
+		},
 		// Loads question html file
 		loadFile: function(file)
 		{
@@ -467,10 +534,8 @@ Survey = (function() {
 
 			if(!Survey.isEmpty())
 			{
-				console.log(Survey.getCookie().questionNode);
 				for(var i in Survey.getCookie().questionNode)
 				{
-					console.log(i);
 					var qs = Survey.getCookie().questionNode[i];
 					var newLine =  escape("\n\r");
 					body += qs.id + ": " + escape(qs.answers) + newLine;

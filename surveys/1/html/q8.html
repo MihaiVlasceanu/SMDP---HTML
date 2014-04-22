@@ -1,0 +1,28 @@
+<form method="POST" action="" id="Q8" class="smdp last" autocomplete="off" role="form">
+  <div class="question_container">
+    <h3 class="smdp_question">Rank your favorite subjects</h3>
+  </div>
+  <div class="options_container">
+<div class="form-group">
+  <label for="ranking_A" class="col-xs-9 control-label">MDDP</label>
+  <div class="col-xs-3">
+    <input type="number" class="form-control rating" id="ranking_A" maxlength="2" onkeyup="return Survey.rankingUpdate(this);" name="rating_A" data-next="" />
+  </div>
+</div>
+<div class="form-group">
+  <label for="ranking_B" class="col-xs-9 control-label">Database Tuning</label>
+  <div class="col-xs-3">
+    <input type="number" class="form-control rating" id="ranking_B" maxlength="2" onkeyup="return Survey.rankingUpdate(this);" name="rating_B" data-next="" />
+  </div>
+</div>
+<div class="form-group">
+  <label for="ranking_C" class="col-xs-9 control-label">Discrete Mathematics</label>
+  <div class="col-xs-3">
+    <input type="number" class="form-control rating" id="ranking_C" maxlength="2" onkeyup="return Survey.rankingUpdate(this);" name="rating_C" data-next="" />
+  </div>
+</div>
+  </div>
+  <button type="button" class="btn btn-primary btn-sm btn-block" name="submitQuestion" onclick="return Survey.saveAnswerData('#Q8');">
+    Next Question <span class="glyphicon glyphicon-chevron-right"></span>
+  </button>
+</form>
